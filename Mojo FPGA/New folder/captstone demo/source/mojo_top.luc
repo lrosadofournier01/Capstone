@@ -4,15 +4,15 @@ module mojo_top (
     output led [8],         // 8 user controllable LEDs
     input cclk,             // configuration clock, AVR ready when high
     output spi_miso,        // AVR SPI MISO
-    input spi_ss,           // AVR SPI Slave Select
-    input spi_mosi,         // AVR SPI MOSI
-    input spi_sck,          // AVR SPI Clock
+    //input spi_ss,           // AVR SPI Slave Select
+    //input spi_mosi,         // AVR SPI MOSI
+    //input spi_sck,          // AVR SPI Clock
     output spi_channel [4], // AVR general purpose pins (used by default to select ADC channel)
-    input avr_tx,           // AVR TX (FPGA RX)
+    //input avr_tx,           // AVR TX (FPGA RX)
     output avr_rx,          // AVR RX (FPGA TX)
-    input avr_rx_busy       // AVR RX buffer full
+    //input avr_rx_busy       // AVR RX buffer full
     output hdmi1_tmds [4],  // HDMI 1 TMDS
-    output hdmi1_tmdsb [4],  // HDMI 1 TMDSB
+    output hdmi1_tmdsb [4]  // HDMI 1 TMDSB
   ) {
   
   sig rst;                  // reset signal
@@ -20,7 +20,7 @@ module mojo_top (
   clk_wiz_v3_6 clk_wiz (.CLK_IN1(clk));
   hdmi_encoder hdmi (.clk(clk_wiz.CLK_OUT1), .rst(0));
   
-  .clk(hdmi.pclk) {
+  .clk(clk) {
     // The reset conditioner is used to synchronize the reset signal to the FPGA
     // clock. This ensures the entire FPGA comes out of reset at the same time.
     reset_conditioner reset_cond;
