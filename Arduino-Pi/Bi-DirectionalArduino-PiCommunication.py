@@ -30,12 +30,11 @@ def ArduinoToRPi():
 #Function to exclude redundant serial messages
 def Exclude():
     #Define Regex statements
-    re_RtoA = r'Sending message to Arduino Serial...'
     re_AtoR = r'Sending message to Raspberry Pi...'
     re_NM = r'New Message...'
 
     #Want to only print the message from the Arduino Nano
-    check = re.match(re_RtoA + re_AtoR + re_NM + msg, readSerial)
+    check = re.match(re_AtoR + re_NM + msg, readSerial)
     if check:
         #Do nothing
     else:
