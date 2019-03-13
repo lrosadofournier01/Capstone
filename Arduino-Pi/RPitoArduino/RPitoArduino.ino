@@ -1,16 +1,45 @@
-String msg;
-//char c;
+const byte numChars = 32;
+char receivedChars[numChars]; // an array to store the received data
+
+boolean newData = false;
+
 void setup() {
   Serial.begin(9600);
+  Serial.println("<Arduino is ready>");
 }
 
 void loop() {
-  //c = Serial.read();  //conveting the value of chars to integer
-  while(Serial.available()> 0){
-    msg = Serial.readString();
+  recvWithEndMarker();
+  showNewData();
+}
+
+void recvWithEndMarker() {
+  static byte ndx = 0;
+  char endMarker = '\n';
+  char rc;
+ 
+  while (Serial.available() > 0 && newData == false) {
+    rc = Serial.read();
+
+    if (rc != endMarker) {
+      receivedChars[ndx] = rc;
+      ndx++;
+      if (ndx >= numChars) {
+        ndx = numChars - 1;
+      }
+    }
+    else {
+      receivedChars[ndx] = '\0'; // terminate the string
+      ndx = 0;
+      newData = true;
+    }
   }
-  //if(Serial.available()){         //From RPi to Arduino
-  Serial.println(msg);
-  //}
-  delay(1000);
+}
+
+void showNewData() {
+  if (newData == true) {
+    Serial.print("This just in ... ");
+    Serial.println(receivedChars);
+    newData = false;
+  }
 }
