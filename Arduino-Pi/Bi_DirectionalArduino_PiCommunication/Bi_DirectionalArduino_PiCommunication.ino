@@ -15,7 +15,7 @@ void loop() {
 }
 
 void ArduinoToRPi(){
-  Serial.println("Sending message to Raspberry Pi...");
+  Serial.print("Sending message to Raspberry Pi... ");
   Serial.println("Hello from the Arduino Nano!");
   //Wait for RPi to print the message
   delay(3000);
@@ -53,7 +53,7 @@ void recvWithEndMarker() {
 
 void showNewData() {
   if (newData == true) {
-    Serial.print("New Message... ");
+    //Serial.println("New Message... ");
     Serial.println(receivedChars);
     newData = false;
   }
