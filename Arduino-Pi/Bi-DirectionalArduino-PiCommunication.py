@@ -1,6 +1,5 @@
 import serial
 import time
-import re
 
 #Define the USB port being used and baud rate. Must match the Arduino
 ser = serial.Serial('/dev/ttyUSB0',9600)
@@ -35,12 +34,12 @@ def replaceMultiple(mainString, toBeReplaces, newString):
         if elem in mainString :
             # Replace the string
             mainString = mainString.replace(elem, newString)
-    
+
     return  mainString
 
 #Function to exclude redundant serial messages
 def Exclude():
-	#Define Regex statements
+	#Define replacement statement
 	re_AtoR = "Sending message to Raspberry Pi..."
 
 	#Want to only print the message from the Arduino Nano
