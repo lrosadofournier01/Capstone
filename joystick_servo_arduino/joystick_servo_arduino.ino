@@ -1,27 +1,29 @@
+// Controlling movements of two servos using a Joystick
+// Joystick's x- and y- axes are connected to A0 and A1 analog pins of Arduino.
+// Servos are connectd to PWM Pins 9 and 10.
+// By Explore Labs
+
 #include <Servo.h>
-  
-Servo servo1;
-Servo servo2;
-int joyX = 0;
-int joyY = 1;
-  
-int servoVal;
-  
-void setup() 
-{
-  servo1.attach(5);
-  servo2.attach(6);
-}
-  
+
+Servo tilt, pan; // create servo object to control a servo 
+
+int joyX = A0; // analog pin used to connect the X - axis of Joystick
+int joyY = A1; // analog pin used to connect the Y - axis of Joystick
+int x, y; // variables to read the values from the analog pins 
+
+void setup()
+{ 
+  tilt.attach(8); // attaches the tilt servo on pin 9 to the servo object 
+  pan.attach(9); // attaches the pan servo on pin 10 to the servo object 
+} 
+
 void loop()
-{
-  
-  servoVal = analogRead(joyX);
-  servoVal = map(servoVal, 0, 1023, 0, 180);
-  servo1.write(servoVal);
- 
-  servoVal = analogRead(joyY);
-  servoVal = map(servoVal, 0, 1023, 70, 180);
-  servo2.write(servoVal);
-  delay(15);  
+{ 
+  x = joyX;    // reads the value of the Joystick's X - axis (value between 0 and 1023) 
+  y = joyY;    // reads the value of the Joystick's Y - axis (value between 0 and 1023) 
+  x = map(analogRead(joyX), 0, 1023, 900, 2100); // scale it to use with the servo b/w 900 usec to 2100 usec
+  y = map(analogRead(joyY), 0, 1023, 900, 2100);
+  tilt.write(x); // sets the servo position according to the scaled value 
+  pan.write(y);
+  delay(15); // waits for the servos to get there 
 }
