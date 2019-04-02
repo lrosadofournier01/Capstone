@@ -1,0 +1,21 @@
+from RPLCD.i2c import CharLCD
+import time
+lcd=CharLCD(i2c_expander='PCF8574', address=0x27)
+lcd.write_string('Hello world!')
+time.sleep(3)
+lcd.clear()
+lcd.write_string('Hello')
+lcd.crlf()             
+lcd.write_string('World!')
+time.sleep(3)
+lcd.clear()
+lcd.cursor_pos=(1,0)
+lcd.write_string('Hello world!')
+time.sleep(3)
+lcd.clear()
+
+lcd.write_string('Tgt loc: ')
+lcd.cursor_pos=(1,0)
+lcd.write_string('12345 67890')
+time.sleep(5)
+lcd.clear()
