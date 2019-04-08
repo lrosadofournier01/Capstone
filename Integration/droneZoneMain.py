@@ -1,5 +1,5 @@
 import smbus #Gyroscope, barometer
-import math #Gyroscope
+import math #Gyroscope, Math
 import time #Barometer, LRF, Arduino-Pi
 from ctypes import c_short #Barometer
 import ast #LRF
@@ -203,7 +203,7 @@ def readBmp180(addr=DEVICE):
   X1 = (X1 * 3038) >> 16
   X2 = int(-7357 * P) >> 16
   pressure = int(P + ((X1 + X2 + 3791) >> 4))
-
+  #C and mbar respectivly
   return (temperature/10.0,pressure/100.0)
 
 def getBaro():
@@ -245,9 +245,67 @@ def getLaser():
 #-----------------------------------
 #Math
 #-----------------------------------
-#def doMath():
+def doMath():
 #to be used for combining LRF, GPS, compass, and baro for TGT LOC
-#Returns 'calculations' and 'location'
+#Returns 'distance' and 'location'
+    molMass = 0.02896968
+    grav = 9.80665
+    gasConst = 8.31582991
+    seaLvlP = 1013.25
+    tempLapse = 0.0065
+    let1, let2, numA, numB = getGPS()
+    laserDist = getLaser()
+    headingAngle = getCompass()
+    #Convert to radians for calculations
+    headingAngle = math.radians(headingAngle)
+    temp, press = getBaro()
+    #Convert to kelvin for calculations
+    tempKelv = temp + 273.15
+
+    #Find the altitude
+    constExp = (grav*molMass)/(gasConst*tempLapse)
+    altitude = (1 - math.pow(press/seaLvlP, 1/constExp))*(tempKelv/tempLapse)
+
+    #distance is in meters
+    distance = math.sqrt(math.pow(altitude, 2) + math.pow(laserDist, 2))
+
+    #Find the x and y components
+    distX = distance * math.sin(headingAngle)
+    distY = distance * math.cos(headingAngle)
+
+    #Location is in MGRS
+    xNumA = numA + distX #horizontal measurement
+    yNumB = numB + distY #vertical measurement
+
+    #See if the number for letter 1 moves to a different grid
+    if xNumA > 99999:
+        incLet1 = chr(ord(let1) + 1) #Goes to the next letter
+        let1 = incLet1
+        incRem1 = xNumA - 99999 #Find how much it goes into the next grid
+        xNumA = incRem1 + 10000
+    elif xNumA < 10000:
+        decLet1 = chr(ord(let1) - 1) #Goes to the previous letter
+        let1 = decLet1
+        decRem1 = 10000 - xNumA #Find how much it goes into the previous grid
+        xNumA = 99999 - decRem1
+    else:
+        pass #Keep going
+    #See if the number for letter 2 moves to a different grid
+    if yNumB > 99999:
+        incLet2 = chr(ord(let2) + 1) #Goes to the next letter
+        let2 = incLet2
+        incRem2 = yNumB - 99999 #Find how much it goes into the next grid
+        yNumB = incRem2 + 10000
+    elif yNumB < 10000:
+        decLet2 = chr(ord(let2) - 1) #Goes to the previous letter
+        let2 = decLet2
+        decRem2 = 10000 - yNumB #Find how much it goes into the previous grid
+        yNumB = 99999 - decRem2
+    else:
+        pass #Keep going
+
+    location = let1, let2, int(xNumA), int(yNumB)
+    return distance, location
 
 #-----------------------------------
 #Get joystick instruction
@@ -268,10 +326,13 @@ def userInput():
 #Send calculations to Arduino
 #-----------------------------------
 def sendValues():
+    dist, loc = doMath()
+    valuesArray[] = ""
 #Send message over the serial
 	while 1:
-		ser.write(calculations.encode())
-        ser.write(location.encode())
+        valuesArray[0] = dist
+        valuesArray[1] = loc
+		ser.write(valuesArray[].encode())
 		#Wait for Arduino to print the message
 		time.sleep(1)
 		#Need to break out of the loop to let the next function operate

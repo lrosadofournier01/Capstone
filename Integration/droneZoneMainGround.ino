@@ -14,7 +14,8 @@ boolean newData = false;
 //joystick
 int x_key = A1; //Defined analog inputs
 int y_key = A0;
-int posArray[2];//Array to hold values of the position
+int joyClick = 4;
+int joyArray[3];//Array to hold values of the position
 
 void setup() {
   //NRF
@@ -26,13 +27,15 @@ void setup() {
   //Joystick
   pinMode (x_key, INPUT) ; //set the analog inputs
   pinMode (y_key, INPUT) ;
+  pinMode (joyClick, INPUT) ;
 }
 
 void loop() {
-  posArray[0] = analogRead (x_key) ; //set the analog input to indicies of the array
-  posArray[1] = analogRead (y_key) ;
+  joyArray[0] = analogRead (x_key) ; //set the analog input to indicies of the array
+  joyArray[1] = analogRead (y_key) ;
+  joyArray[2] = digitalRead(joyClick);
   //Send joystick instruction
-  radio.write(&posArray, sizeof(posArray)); //send the array
+  radio.write(&joyArray, sizeof(joyArray)); //send the array
   delay(100);
   //Get calculations
   radio.startListening();

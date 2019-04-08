@@ -1,6 +1,7 @@
 //Gets joystick instructions
+//Gets GPS data
 //Moves servos
-//Sends joystick click to the RPi
+//Sends joystick click and GPS to the RPi
 //Gets the calculations from the RPi
 //Sends the calculations
 #include <SPI.h>
@@ -19,6 +20,7 @@ const byte addresses[][6] = {"00001", "00002"}; //Communication pipes
 const byte numChars = 32;
 char rPiAChars[numChars]; // an array to store data from Raspberry Pi A
 boolean newData = false;
+//GPS
 
 void setup() {
   //Serial
@@ -31,10 +33,14 @@ void setup() {
   //Servos
   servo1.attach (servo1_pin ) ; //attach servos to pins
   servo2.attach (servo2_pin ) ;
+  //GPS
 
 }
 
 void loop() {
+  //GPS
+  //Going to send dummy GPS values for now
+  String gpsValues = "$GPGGA, 1234519, 4807.038, N, 01131.000, E, 1, 08, 0.9, 545.4, M, 46.9, M, , *47";
   radio.startListening();
   if (radio.available()) {
     int joyArray[3]; //array to hold analog joystick values
@@ -63,8 +69,9 @@ void loop() {
       servo2.write (joyArray[1]) ;
     }
 
-    //Send Joystick click to RPi
+    //Send Joystick click and GPS data to RPi
     Serial.println(joyArray[2]);
+    Serial.println(gpsValues);
 
     //Gets calculation from RPi
     static byte ndx = 0;
