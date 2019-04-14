@@ -1,14 +1,19 @@
-import math
+#Get the joystick click from the Arduino: RPI <--
+#Get values from all of the sensors
+#Do the calculations
+#Send the calculations to the Arduino:    RPI -->
+import math #calculations
+import time #Arduino-Pi
+import re #Exclude msgs
+
 
 #Define readSerial globally. Decode added to make it a string
-readSerial = ser.readline().decode()
+readJoy = ser.readline().decode()
 
-#Get 'GPS' and Joystick values from the Arduino
+#Get Joystick values from the Arduino
 def getArduino():
-    #Wait for Arduino to send message
-	time.sleep(1)
 	#Read from the Serial. This is the on value to turn on the laser
-	return readSerial
+	return readJoy
 
 #Dummy barometer values
 def getBaro():
@@ -18,7 +23,7 @@ def getBaro():
 
 #Dummy compass values
 def getCompass():
-    heading_angle = 30 #In Degrees
+    heading_angle = 300 #In Degrees
     return heading_angle
 
 #Dummy laser values
@@ -28,7 +33,6 @@ def getLaser():
 
 #Dummy GPS values
 def getGPS():
-    #In the real code, the gps will be sent by the Arduino and parsed by the Pi
     letter1 = 'P'
     letter2 = 'U'
     numberA = 12345
@@ -39,6 +43,8 @@ def getGPS():
 def updateStatus():
     getBaro()
     getCompass()
+    getGPS()
+    getLaser()
 
 def doMath():
 #to be used for combining LRF, GPS, compass, and baro for TGT LOC
@@ -61,7 +67,7 @@ def doMath():
     constExp = (grav*molMass)/(gasConst*tempLapse)
     altitude = (1 - math.pow(press/seaLvlP, 1/constExp))*(tempKelv/tempLapse)
 
-    #distance is in meters
+    #distance is in meters. Check math on this
     distance = math.sqrt(math.pow(altitude, 2) + math.pow(laserDist, 2))
 
     #Find the x and y components
@@ -101,9 +107,26 @@ def doMath():
 
     location = let1, let2, int(xNumA), int(yNumB)
 
-    print (int(distance))
-    print(distX)
-    print(distY)
-    print(location)
+    return distance, location
 
-doMath()
+#Function to send calculations to the Arduino
+def RPiToArduino(msg):
+#Send message over the serial
+	while 1:
+		ser.write(msg.encode())
+		#Need to break out of the loop to let the next function operate
+		break
+
+#Wait for Arduino to send the click
+time.sleep(2)
+#Assign joystick click to a variable
+joyClick = getArduino()
+while 1:
+    #If the joy stick is clicked, update the status, do the math, and send the calulations to the Arduino
+    if joyClick = 0:
+        updateStatus()
+        dist, loc = doMath()
+        calc = dist, loc
+        RPiToArduino(calc)
+    else:
+        updateStatus()
